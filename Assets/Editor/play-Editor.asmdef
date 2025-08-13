@@ -1,0 +1,10 @@
+{
+  "name": "play-Editor",
+  "references": [
+    "play"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": []
+}
