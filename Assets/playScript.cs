@@ -287,35 +287,47 @@ public class playScript : MonoBehaviour
     IEnumerator ProcessTwitchCommand(string Command)
     {
         yield return null;
-        if (!Command.RegexMatch("(([A-Da-d][1-4]|>+)( |$))+"))
+        foreach (char c in Command.ToUpperInvariant())
         {
-            yield return "sendtochaterror Сommand is not valid.";
+            if (!"ABCD1234> ".Contains(c.ToString())) {yield return "sendtochaterror Сommand is not valid."; yield break; }
         }
-        else
+        var commandArgs = Command.ToUpperInvariant().Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+        foreach(string str in commandArgs)
         {
-            var commandArgs = Command.ToUpperInvariant().Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-            foreach(string str in commandArgs)
+            if (str.Length==2 && "ABCD".Contains(str.Substring(0,1))&&"1234".Contains(str.Substring(1,1)))
             {
-                if (str.RegexMatch("[A-D][1-4]"))
+                int index = coords.IndexOf(i => i == str);
+                Debug.Log(index.ToString());
+                if (buttonObjects[0].activeInHierarchy) buttons[0].OnInteract();
+                else if (buttonObjects[1 + index/4].activeInHierarchy) buttons[1 + index/4].OnInteract();
+                else if (buttonObjects[5 + index].activeInHierarchy) buttons[5 + index].OnInteract();
+                else yield return "sendtochaterror No such button.";
+                yield return null;
+            }
+            else
+            {
+                foreach (char c in str)
                 {
-                    int index = coords.IndexOf(i => i == str);
-                    Debug.Log(index.ToString());
-                    if (buttonObjects[0].activeInHierarchy) buttons[0].OnInteract();
-                    else if (buttonObjects[1 + index/4].activeInHierarchy) buttons[1 + index/4].OnInteract();
-                    else if (buttonObjects[5 + index].activeInHierarchy) buttons[5 + index].OnInteract();
-                    else yield return "sendtochaterror No such button.";
-                }
-                else
-                {
-                    for (int i=0; i<str.Length; i++)
-                    {
-                        fastButton.OnInteract();
+                    if (c != '>') {yield return "sendtochaterror No such button.";
+                        yield break;
                     }
                 }
-                yield return new WaitForSeconds(0.15f);
+                foreach (char c in str) {if (starts.Contains(move) || stops.Contains(move))
+                    {
+                        GetComponent<KMBombModule>().HandleStrike();
+                        yield break;
+                    }
+                    else
+                    {
+                        move++;
+                        screen.text = move.ToString();
+                        Audio.PlaySoundAtTransform(fastSound.name, transform);
+                    }}
             }
-
+            yield return new WaitForSeconds(0.15f);
         }
+
+        
         
     }
 
